@@ -3,14 +3,14 @@ on:
   push:
     branches:
       - master
-      - '[0-9]+.[0-9]+-dev'
+      - "[0-9]+.[0-9]+-dev"
 env:
   ARCH: x86,x86_64
-  DUMP_SYMS_VERSION: '2.3.7'
+  DUMP_SYMS_VERSION: "2.3.7"
   # Used for caching
   # TODO: Handle this better so that we don't have to update this in lockstep with checkout-deps
-  MYSQL_VERSION: '5.7'
-  MMSOURCE_VERSION: '1.12'
+  MYSQL_VERSION: "5.7"
+  MMSOURCE_VERSION: "1.12"
 jobs:
   build:
     permissions:
@@ -37,7 +37,7 @@ jobs:
           path: sourcemod
           fetch-depth: 0
           submodules: recursive
-      
+
       - name: Install Windows dependencies
         if: startsWith(matrix.os, 'windows')
         shell: pwsh
@@ -47,7 +47,7 @@ jobs:
           $vsRoot = & vswhere -latest -property installationPath
           $diaDir = Join-Path $vsRoot 'DIA SDK\bin'
           $diaDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          
+
           $toolsDir = New-Item -Path '_tools' -ItemType Directory -Force
           $toolsDir.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           Push-Location $toolsDir
@@ -58,7 +58,7 @@ jobs:
           # Flatten if extracted into a subdirectory
           Get-ChildItem -Recurse -Filter 'dump_syms.exe' | Move-Item -Destination . -ErrorAction SilentlyContinue
           Pop-Location
-      
+
       # Largely a workaround for issue where github.workspace doesn't match $GITHUB_WORKSPACE
       # in containerized jobs. See https://github.com/actions/runner/issues/2058
       - name: Resolve paths
@@ -66,33 +66,33 @@ jobs:
         shell: bash
         run: |
           echo "dependencies=$GITHUB_WORKSPACE/dependencies" >> $GITHUB_OUTPUT
-      
+
       - name: Generate SDK list
         id: sdk_list
         shell: bash
         run: |
-            sdk_list=()
-            for file in sourcemod/hl2sdk-manifests/manifests/*.json; do
-              sdk=$(basename "$file" .json)
-              if [[ $sdk == "mock" ]]; then
-                # We don't need to ship a build for the mock SDK
-                continue
-              fi
+          sdk_list=()
+          for file in sourcemod/hl2sdk-manifests/manifests/*.json; do
+            sdk=$(basename "$file" .json)
+            if [[ $sdk == "mock" ]]; then
+              # We don't need to ship a build for the mock SDK
+              continue
+            fi
 
-              platform=$(jq -r '.platforms.${{ matrix.platform }}' "$file")
-              if [[ -z $platform || $platform == "null" || ${#platform[@]} -eq 0 ]]; then
-                continue
-              fi
+            platform=$(jq -r '.platforms.${{ matrix.platform }}' "$file")
+            if [[ -z $platform || $platform == "null" || ${#platform[@]} -eq 0 ]]; then
+              continue
+            fi
 
-              source2=$(jq -r '.source2' "$file")
-              if [[ $source2 == "null" || $source2 == "true" ]]; then
-                continue
-              fi
+            source2=$(jq -r '.source2' "$file")
+            if [[ $source2 == "null" || $source2 == "true" ]]; then
+              continue
+            fi
 
-              sdk_list+=("$sdk")
-            done
-            echo "sdk_list=$(printf '%s\n' "${sdk_list[@]}" | jq --raw-input . | jq --slurp --compact-output .)" >> $GITHUB_OUTPUT
-      
+            sdk_list+=("$sdk")
+          done
+          echo "sdk_list=$(printf '%s\n' "${sdk_list[@]}" | jq --raw-input . | jq --slurp --compact-output .)" >> $GITHUB_OUTPUT
+
       - name: Cache dependencies
         uses: actions/cache@v6
         env:
@@ -103,7 +103,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-mysql${{ env.MYSQL_VERSION }}-mmsource${{ env.MMSOURCE_VERSION }}-
             ${{ runner.os }}-build-${{ env.cache-name }}-mysql${{ env.MYSQL_VERSION }}-
-      
+
       - name: Install dependencies
         shell: bash
         env:
@@ -136,17 +136,13 @@ jobs:
       - name: Build
         working-directory: sourcemod
         shell: bash
-        env:
-          BREAKPAD_SYMBOL_SERVER: ${{ vars.BREAKPAD_SYMBOL_SERVER }}
-          BREAKPAD_SYMBOL_SERVER_TOKEN: ${{ secrets.BREAKPAD_SYMBOL_SERVER_TOKEN }}
         run: |
           mkdir build
           cd build
           python3 ../configure.py \
             --enable-optimize \
             --breakpad-dump \
-            --symbol-files \
-            --sdks=${{ join(fromJson(steps.sdk_list.outputs.sdk_list), ',') }} \
+            --sdks=tf \
             --targets=${{ env.ARCH }} \
             '--mms-path=${{ steps.path_helper.outputs.dependencies }}/mmsource-${{ env.MMSOURCE_VERSION }}' \
             '--hl2sdk-root=${{ steps.path_helper.outputs.dependencies }}' \
@@ -156,7 +152,7 @@ jobs:
 
           mkdir -p package/addons/sourcemod/configs/geoip
           cp '${{ steps.path_helper.outputs.dependencies }}/GeoLite2-City.mmdb' package/addons/sourcemod/configs/geoip/GeoLite2-City.mmdb
-      
+
       - name: Package
         id: package
         working-directory: sourcemod/build/package
@@ -181,7 +177,7 @@ jobs:
           echo "expanded_version=$expanded_version" >> $GITHUB_OUTPUT
           echo "filename=$filename" >> $GITHUB_OUTPUT
           echo "content_type=$content_type" >> $GITHUB_OUTPUT
-        
+
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1.21.0
@@ -204,12 +200,12 @@ jobs:
           tag: ${{ steps.package.outputs.version }}
           commit: ${{ github.sha }}
           generateReleaseNotes: true
-                    
+
           draft: false
           prerelease: ${{ github.ref == 'refs/heads/master' }}
           makeLatest: ${{ github.ref != 'refs/heads/master' }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Output PDBs
         if: startsWith(matrix.os, 'windows')
         shell: pwsh
@@ -238,7 +234,7 @@ jobs:
                   }
               }
           }
-      
+
       - name: Upload PDBs
         if: startsWith(matrix.os, 'windows')
         id: upload_pdbs
