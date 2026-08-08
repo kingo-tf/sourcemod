@@ -73,7 +73,7 @@ SH_DECL_HOOK3_void(IServerGameDLL, ServerActivate, SH_NOATTRIB, 0, edict_t *, in
 
 bool TF2Tools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 {
-	if (strcmp(g_pSM->GetGameFolderName(), "tf") != 0)
+	if (strcmp(g_pSM->GetGameFolderName(), "tf_ktbm") != 0)
 	{
 		UTIL_Format(error, maxlength, "Cannot Load TF2 Extension on mods other than TF2");
 		return false;
