@@ -142,7 +142,6 @@ jobs:
           cd build
           python3 ../configure.py \
             --enable-optimize \
-            --breakpad-dump \
             --sdks=${{ join(fromJson(steps.sdk_list.outputs.sdk_list), ',') }} \
             --targets=${{ env.ARCH }} \
             '--mms-path=${{ steps.path_helper.outputs.dependencies }}/mmsource-${{ env.MMSOURCE_VERSION }}' \
