@@ -99,7 +99,7 @@ bool TF2Tools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	sharesys->AddDependency(myself, "sdktools.ext", false, true);
 
 	char conf_error[255] = "";
-	if (!gameconfs->LoadGameConfigFile("sm-tf2.games", &g_pGameConf, conf_error, sizeof(conf_error)))
+	if (!gameconfs->LoadGameConfigFile("sm-tf2r.games", &g_pGameConf, conf_error, sizeof(conf_error)))
 	{
 		if (conf_error[0])
 		{

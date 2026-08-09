@@ -1,0 +1,132 @@
+"Games"
+{
+	/* Team Fortress 2: Rebalanced */
+	"tf_ktbm"
+	{
+		"Offsets"
+		{
+			"SetOwnerEntity"
+			{
+
+				"windows64"	"18"
+				"linux64"	"19"
+			}
+			"GiveNamedItem"
+			{
+				"windows64"	"418"
+				"linux64"	"419"
+			}
+			"RemovePlayerItem"
+			{
+				"windows64"	"286"
+				"linux64"	"287"
+			}
+			"Weapon_GetSlot"
+			{
+				"windows64"	"284"
+				"linux64"	"285"
+			}
+			"Ignite"
+			{
+				"windows64"	"225"
+				"linux64"	"226"
+			}
+			"Extinguish"
+			{
+				"windows64"	"229"
+				"linux64"	"230"
+			}
+			"Teleport"
+			{
+				"windows64"	"117"
+				"linux64"	"118"
+			}
+			"CommitSuicide"
+			{
+				"windows64"	"459"
+				"linux64"	"459"
+			}
+			"GetVelocity"
+			{
+				"windows64"	"150"
+				"linux64"	"151"
+			}
+			"EyeAngles"
+			{
+				"windows64"	"141"
+				"linux64"	"142"
+			}
+			"SetEntityModel"
+			{
+				"windows64"	"26"
+				"linux64"	"27"
+			}
+			"AcceptInput"
+			{
+				"windows64"	"38"
+				"linux64"	"39"
+			}
+			"WeaponEquip"
+			{
+				"windows64"	"277"
+				"linux64"	"278"
+			}
+			"Activate"
+			{
+				"windows64"	"35"
+				"linux64"	"36"
+			}
+			"PlayerRunCmd"
+			{
+				"windows64"	"436"
+				"linux64"	"437"
+			}
+			"GiveAmmo"
+			{
+				"windows64"	"268"
+				"linux64"	"269"
+			}
+			"GetAttachment"
+			{
+				"windows64"	"221"
+				"linux64"	"222"
+			}
+		}
+		
+		"Keys"
+		{
+			"GameRulesProxy"	"CTFGameRulesProxy"
+			"GameRulesDataTable" "tf_gamerules_data"
+		}
+	}
+	
+	"#default"
+	{
+		"Signatures"
+		{
+			"FireOutput"
+			{
+				/* CBaseEntityOutput::FireOutput */
+				/* String: "(%0.2f) output: (%s,%s) -> (%s,%s,%.1f)" */
+				"library"	"server"
+				"windows64"	"\x4C\x8B\xDC\x41\x56\x41\x57\x48\x81\xEC\x08\x02\x00\x00"
+				"linux64"	"@_ZN17CBaseEntityOutput10FireOutputE9variant_tP11CBaseEntityS2_f"
+			}
+		}
+	}
+	
+	"#default"
+	{
+		"Signatures"
+		{
+			"LookupAttachment"
+			{
+				/* CBaseAnimating::LookupAttachment */
+				/* String: "vehicle_driver_eyes", middle length top function, with 4 calls, pick the first one. */
+				"library"	"server"
+				"windows64"	"\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x20\x80\xB9\x65\x04\x00\x00\x00\x48\x8B\xFA\x48\x8B\xD9\x75\x2A\x48\x83\xB9\xC0\x05\x00\x00\x00\x75\x2A\xE8\x2A\x2A\x2A\x2A\x48\x85\xC0\x74\x2A\x48\x8B\xCB\xE8\x2A\x2A\x2A\x2A\x48\x8B\x8B\xC0\x05\x00\x00\x48\x85\xC9\x74\x2A\x48\x83\x39\x00\x74\x2A\x48\x8B\xD7\xE8\x2A\x2A\x2A\x2A"
+				"linux64"	"@_ZN14CBaseAnimating16LookupAttachmentEPKc"
+			}
+		}
+	}
+}
