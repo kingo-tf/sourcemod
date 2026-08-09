@@ -103,7 +103,7 @@ bool TF2Tools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 	{
 		if (conf_error[0])
 		{
-			UTIL_Format(error, maxlength, "Could not read sm-tf2.games.txt: %s", conf_error);
+			UTIL_Format(error, maxlength, "Could not read sm-tf2r.games.txt: %s", conf_error);
 		}
 		return false;
 	}
