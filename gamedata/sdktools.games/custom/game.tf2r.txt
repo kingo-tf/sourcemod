@@ -109,7 +109,7 @@
 				/* CBaseEntityOutput::FireOutput */
 				/* String: "(%0.2f) output: (%s,%s) -> (%s,%s,%.1f)" */
 				"library"	"server"
-				"windows64"	"\x4C\x8B\xDC\x41\x56\x41\x57\x48\x81\xEC\x08\x02\x00\x00"
+				"windows64"	"\x4C\x8B\xDC\x41\x54\x41\x55"
 				"linux64"	"@_ZN17CBaseEntityOutput10FireOutputE9variant_tP11CBaseEntityS2_f"
 			}
 		}
