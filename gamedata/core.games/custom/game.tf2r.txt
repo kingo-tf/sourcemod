@@ -1,0 +1,54 @@
+"Games"
+{
+	"tf_ktbm"
+	{
+		"#supported"
+		{
+			"game"					"tf_ktbm"
+		}
+
+		"Keys"
+		{
+			"HudRadioMenuMsg"		"ShowMenu"
+		}
+	}
+	
+	"tf_ktbm"
+	{
+		"#supported"
+		{
+			"engine"				"csgo"
+		}
+
+		"Keys"
+		{
+			"HudRadioMenuMsg"		"ShowMenu"
+		}
+	}
+	
+	"tf_ktbm"
+	{
+		"#supported"
+		{
+			"game"					"tf_ktbm"
+		}
+		
+		"Keys"
+		{
+			"RadioMenuTimeout"		"4"
+		}
+	}
+
+	"tf_ktbm"
+	{
+		"#supported"
+		{
+			"game"					"tf_ktbm"
+		}
+		
+		"Keys"
+		{
+			"HudTextMsg"			"HudMsg"
+		}
+	}
+}
