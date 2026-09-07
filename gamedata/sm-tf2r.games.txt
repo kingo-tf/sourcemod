@@ -158,7 +158,7 @@
 	/*
 	 * TF2 Holiday index values. Formerly SM TFHoliday enum.
 	 */
-	"tf"
+	"tf_ktbm"
 	{
 		"Keys"
 		{
