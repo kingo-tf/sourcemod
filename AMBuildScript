@@ -146,7 +146,7 @@ class SMConfig(object):
         if mariadb_path:
           self.mariadb_root['x86'] = mariadb_path
         else:
-          self.mariadb_root['x86'] = ResolveEnvPath('MARIADB_CONNECTOR_C', 'mariadb-connector-c-3.4.8-x86')
+          self.mariadb_root['x86'] = ResolveEnvPath('MARIADB_CONNECTOR_C', 'mariadb-connector-c-x86')
         if not self.mariadb_root['x86'] or not os.path.isdir(self.mariadb_root['x86']):
           raise Exception('Could not find an x86 MariaDB Connector/C path. Configure with --no-mysql to disable it.')
         self.mariadb_root['x86'] = Normalize(self.mariadb_root['x86'])
@@ -157,7 +157,7 @@ class SMConfig(object):
         if mariadb64_path:
           self.mariadb_root['x86_64'] = mariadb64_path
         else:
-          self.mariadb_root['x86_64'] = ResolveEnvPath('MARIADB_CONNECTOR_C_64', 'mariadb-connector-c-3.4.8-x86_64')
+          self.mariadb_root['x86_64'] = ResolveEnvPath('MARIADB_CONNECTOR_C_64', 'mariadb-connector-c-x86_64')
         if not self.mariadb_root['x86_64'] or not os.path.isdir(self.mariadb_root['x86_64']):
           raise Exception('Could not find an x86_64 MariaDB Connector/C path.')
         self.mariadb_root['x86_64'] = Normalize(self.mariadb_root['x86_64'])
@@ -271,7 +271,7 @@ class SMConfig(object):
       '-fvisibility=hidden',
     ]
 
-    cxx.cxxflags += ['-std=c++17']
+    cxx.cxxflags += ['-std=c++20']
 
     cxx.cxxflags += [
       '-fno-threadsafe-statics',
@@ -326,6 +326,13 @@ class SMConfig(object):
     if cxx.version >= 'clang-21.0':
         cxx.cflags += ['-Wno-uninitialized-const-pointer']
 
+    if cxx.version >= 'clang-16.0' or cxx.version >= 'apple-clang-15.0':
+        cxx.cxxflags += ['-Wno-deprecated-anon-enum-enum-conversion']
+
+    # C++20 deprecates volatile ++/-- and compound assignment (P1152R4).
+    if cxx.version >= 'clang-12.0' or cxx.version >= 'apple-clang-13.0':
+        cxx.cxxflags += ['-Wno-deprecated-volatile']
+
     if have_gcc:
       cxx.cflags += ['-Wno-maybe-uninitialized']
 
@@ -356,7 +363,7 @@ class SMConfig(object):
       '/EHsc',
       '/GR-',
       '/TP',
-      '/std:c++17',
+      '/std:c++20',
     ]
     cxx.linkflags += [
       'kernel32.lib',
@@ -435,19 +442,34 @@ class SMConfig(object):
         return lambda builder, name: self.StaticLibrary(builder, cxx, name)
       extra_vars = {'Configure': get_configure_fn(cxx)}
       libamtl = builder.Build('public/amtl/amtl/AMBuilder', extra_vars)
-      self.libamtl[cxx.target.arch] = libamtl.binary
+      self.libamtl[cxx.target] = libamtl.binary
 
-  def AddVersioning(self, binary):
+  def BinaryOutputName(self, binary, binary_type):
+    target = binary.compiler.target
+    if binary_type == 'program':
+      name_fn = binary.compiler.vendor.nameForExecutable
+    elif binary_type == 'library':
+      name_fn = binary.compiler.vendor.nameForSharedLibrary
+    else:
+      raise Exception('Unsupported binary type: {}'.format(binary_type))
+
+    try:
+      return name_fn(binary.name_, target)
+    except TypeError:
+      # Older AMBuild versions did not require the target argument.
+      return name_fn(binary.name_)
+
+  def AddVersioning(self, binary, binary_type):
     if binary.compiler.target.platform == 'windows':
       binary.sources += ['version.rc']
       binary.compiler.rcdefines += [
-        'BINARY_NAME="{0}"'.format(binary.outputFile),
+        'BINARY_NAME="{0}"'.format(self.BinaryOutputName(binary, binary_type)),
         'RC_COMPILE',
       ]
       if self.use_auto_versioning():
         binary.compiler.rcdefines += ['SM_GENERATED_BUILD']
     elif binary.compiler.target.platform == 'mac':
-      if binary.type == 'library':
+      if binary_type == 'library':
         binary.compiler.postlink += [
           '-compatibility_version', '1.0.0',
           '-current_version', self.productVersion
@@ -459,7 +481,7 @@ class SMConfig(object):
     
   def LibraryBuilder(self, compiler, name):
     binary = compiler.Library(name)
-    self.AddVersioning(binary)
+    self.AddVersioning(binary, 'library')
     if binary.compiler.like('msvc'):
       binary.compiler.linkflags += ['/SUBSYSTEM:WINDOWS']
     self.AddCxxCompat(binary)
@@ -474,7 +496,7 @@ class SMConfig(object):
 
   def ProgramBuilder(self, compiler, name):
     binary = compiler.Program(name)
-    self.AddVersioning(binary)
+    self.AddVersioning(binary, 'program')
     if '-static-libgcc' in binary.compiler.linkflags:
       binary.compiler.linkflags.remove('-static-libgcc')
     if self.enable_asan:
@@ -564,14 +586,14 @@ class SMConfig(object):
     binary = project.Configure(compiler, name,
                                '{0} - {1} {2}'.format(self.tag, sdk['name'], compiler.target.arch))
     self.AddCxxCompat(binary)
-    self.AddVersioning(binary)
+    self.AddVersioning(binary, 'library')
     return self.ConfigureForHL2(context, binary, sdk)
 
   def HL2ExtConfig(self, project, context, compiler, name, sdk):
     binary = project.Configure(compiler, name,
                                '{0} - {1} {2}'.format(self.tag, sdk['name'], compiler.target.arch))
     self.AddCxxCompat(binary)
-    self.AddVersioning(binary)
+    self.AddVersioning(binary, 'library')
     self.ConfigureForHL2(context, binary, sdk)
     self.ConfigureForExtension(context, binary.compiler)
     return binary
@@ -660,6 +682,9 @@ def IsBetterDefaultSpcomp(spcomp, other):
 for spcomp in SP.spcomp:
     if IsBetterDefaultSpcomp(spcomp, SM.spcomp):
         SM.spcomp = spcomp
+    SM.spcomp_bins.append(spcomp)
+
+for spcomp in SP.oldspcomp:
     SM.spcomp_bins.append(spcomp)
 
 # If we have a universal binary, ignore all other spcomps.
