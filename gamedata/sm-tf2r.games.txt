@@ -58,7 +58,7 @@
 				/* CTFPlayer::SetPowerplayEnabled */
 				/* String: "scenes/player/pyro/low/1485.vcd" -> Main fuction -> That main function again.*/
 				"library"	"server"
-				"windows64"	"\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x0F\xB6\x81\xB0\x2A\x00\x00"
+				"windows64"	"\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x0F\xB6\x81\xB8\x2A\x00\x00"
 				"linux64"	"@_ZN9CTFPlayer19SetPowerPlayEnabledEb"
 			}
 			"SetInWaitingForPlayers"
@@ -116,7 +116,7 @@
 			"IsHolidayActive"
 			{
 				"library"	"server"
-				"windows"	"\x48\x83\xEC\x28\x48\x8B\x05\x8D\x26\xAC\x00"
+				"windows64"	"\x48\x83\xEC\x28\x48\x8B\x05\xCD\x26\xAC\x00"
 				"linux64"	"@_Z18TF_IsHolidayActivei"
 			}
 		}
@@ -137,13 +137,13 @@
 			// CTFWeaponBase
 			"CalcIsAttackCriticalHelper"
 			{
-				"windows64"	"411"
-				"linux64"	"419"
+				"windows64"	"412"
+				"linux64"	"420"
 			}
 			"CalcIsAttackCriticalHelperNoCrits"
 			{
-				"windows64"	"412"
-				"linux64"	"420"
+				"windows64"	"413"
+				"linux64"	"421"
 			}
 			
 			// CTFGameRules::IsHolidayActive
