@@ -72,26 +72,8 @@ jobs:
         id: sdk_list
         shell: bash
         run: |
-          sdk_list=()
-          for file in sourcemod/hl2sdk-manifests/manifests/*.json; do
-            sdk=$(basename "$file" .json)
-            if [[ $sdk == "mock" ]]; then
-              # We don't need to ship a build for the mock SDK
-              continue
-            fi
-
-            platform=$(jq -r '.platforms.${{ matrix.platform }}' "$file")
-            if [[ -z $platform || $platform == "null" || ${#platform[@]} -eq 0 ]]; then
-              continue
-            fi
-
-            source2=$(jq -r '.source2' "$file")
-            if [[ $source2 == "null" || $source2 == "true" ]]; then
-              continue
-            fi
-
-            sdk_list+=("$sdk")
-          done
+          # This fork only targets TF2
+          sdk_list=("tf2")
           echo "sdk_list=$(printf '%s\n' "${sdk_list[@]}" | jq --raw-input . | jq --slurp --compact-output .)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
