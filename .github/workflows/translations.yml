@@ -8,6 +8,8 @@ on:
   workflow_dispatch:
 jobs:
   update_translations:
+    # Requires upstream's GitHub App secrets and project board
+    if: github.repository_owner == 'alliedmodders'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

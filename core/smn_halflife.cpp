@@ -540,6 +540,13 @@ static cell_t GetEngineVersion(IPluginContext *pContext, const cell_t *params)
 		else if (strcmp(gamedir, "hl2mp") == 0)
 			return SOURCE_ENGINE_HL2DM;
 	}
+#if SOURCE_ENGINE == SE_TF2
+	// Loader picks the TF2 core for our mod even though Metamod reports HL2DM
+	else if (engineVer == SOURCE_ENGINE_HL2DM)
+	{
+		return SOURCE_ENGINE_TF2;
+	}
+#endif
 
 	return engineVer;
 }

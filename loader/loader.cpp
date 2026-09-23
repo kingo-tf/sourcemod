@@ -277,7 +277,15 @@ DLL_EXPORT METAMOD_PLUGIN *CreateInterface_MMS(const MetamodVersionInfo *mvi, co
 		}
 	case SOURCE_ENGINE_HL2DM:
 		{
-			filename = FILENAME_1_6_HL2DM;
+			// Metamod can't detect our TF2 mod and falls back to HL2DM
+			if (strcmp(mvi->GetGameDir(), "tf_ktbm") == 0)
+			{
+				filename = FILENAME_1_6_TF2;
+			}
+			else
+			{
+				filename = FILENAME_1_6_HL2DM;
+			}
 			break;
 		}
 	case SOURCE_ENGINE_DODS:
