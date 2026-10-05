@@ -14,17 +14,17 @@
 			"GiveNamedItem"
 			{
 				"windows64"	"418"
-				"linux64"	"419"
+				"linux64"	"420"
 			}
 			"RemovePlayerItem"
 			{
 				"windows64"	"286"
-				"linux64"	"287"
+				"linux64"	"288"
 			}
 			"Weapon_GetSlot"
 			{
 				"windows64"	"284"
-				"linux64"	"285"
+				"linux64"	"286"
 			}
 			"Ignite"
 			{
@@ -44,7 +44,7 @@
 			"CommitSuicide"
 			{
 				"windows64"	"459"
-				"linux64"	"459"
+				"linux64"	"460"
 			}
 			"GetVelocity"
 			{
@@ -69,7 +69,7 @@
 			"WeaponEquip"
 			{
 				"windows64"	"277"
-				"linux64"	"278"
+				"linux64"	"279"
 			}
 			"Activate"
 			{
@@ -79,12 +79,12 @@
 			"PlayerRunCmd"
 			{
 				"windows64"	"436"
-				"linux64"	"437"
+				"linux64"	"438"
 			}
 			"GiveAmmo"
 			{
 				"windows64"	"268"
-				"linux64"	"269"
+				"linux64"	"270"
 			}
 			"GetAttachment"
 			{

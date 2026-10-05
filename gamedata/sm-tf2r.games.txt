@@ -126,12 +126,12 @@
 			"ForceRespawn"
 			{
 				"windows64"	"342"
-				"linux64"	"343"
+				"linux64"	"344"
 			}
 			"RemoveWearable"
 			{
 				"windows64"	"445"
-				"linux64"	"446"
+				"linux64"	"447"
 			}
 
 			// CTFWeaponBase
