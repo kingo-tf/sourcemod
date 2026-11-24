@@ -74,6 +74,18 @@
 			{
 				"exposed"	"CBaseAnimating::GetAttachment(int,matrix3x4_t&)"
 			}
+			"GetTEName"
+			{
+				"exposed"	"CBaseTempEntity::m_pszName"
+			}
+			"GetTENext"
+			{
+				"exposed"	"CBaseTempEntity::m_pNext"
+			}
+			"TE_GetServerClass"
+			{
+				"exposed"	"CBaseTempEntity::GetServerClass"
+			}
 		}
 		
 		"Keys"
@@ -110,4 +122,10 @@
 			}
 		}
 	}
+
+	// Not in this file, and not something the game can expose: SetClientName, SetUserCvar and
+	// InfoChanged are in Valve's engine binary. Their values are in engine.ep2valve.txt, one
+	// folder up (gamedata/sdktools.games/engine.ep2valve.txt), which SourceMod maintains and
+	// updates. If SetClientName or SetClientInfo break after an engine update, look at
+	// the default sourcemod repository not our fork, it may take a bit until our fork updates.
 }
