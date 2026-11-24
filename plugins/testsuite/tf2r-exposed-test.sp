@@ -7,7 +7,7 @@
 public Plugin myinfo =
 {
 	name = "TF2R exposed functions test",
-	author = "AlliedModders LLC",
+	author = "TF2 Rebalanced",
 	description = "Lists what the game exposes by name",
 	version = "1.0.0.0",
 	url = "http://www.sourcemod.net/"
