@@ -2,6 +2,25 @@
 {
 	"tf_ktbm"
 	{
+		"Offsets"
+		{
+			"EntInfo"
+			{
+				"exposed"	"CBaseEntityList::m_EntPtrArray"
+			}
+			"GetDataDescMap"
+			{
+				"exposed"	"CBaseEntity::GetDataDescMap"
+			}
+		}
+		"Signatures"
+		{
+			"gEntList"
+			{
+				"library"	"server"
+				"exposed"	"gEntList"
+			}
+		}
 		"Keys"
 		{
 			"HudRadioMenuMsg"		"ShowMenu"

@@ -48,6 +48,7 @@
 #include <bridge/include/ILogger.h>
 #include <bridge/include/CoreProvider.h>
 #include <bridge/include/IFileSystemBridge.h>
+#include <iktbmgamedata.h>
 
 #if defined PLATFORM_POSIX
 #include <dlfcn.h>
@@ -59,6 +60,64 @@ static char g_Game[256];
 static char g_GameDesc[256] = {'!', '\0'};
 static char g_GameName[256] = {'$', '\0'};
 static const char *g_pParseEngine = NULL;
+
+/**
+ * The game's own list of what it exposes by name (public/iktbmgamedata.h), or NULL on
+ * a game, or a build of one, that has none. A gamedata file refers to it with an
+ * "exposed" key in an offset or a signature:
+ *
+ *     "ForceRespawn" { "exposed" "CBasePlayer::ForceRespawn"  "windows64" "342"  "linux64" "344" }
+ *
+ * What the game answers for that name is used on every platform. The platform's own
+ * value is what is left when the game doesn't know the name.
+ */
+static IKTBMGameData *GetKTBMGameData()
+{
+	static bool s_looked = false;
+	static IKTBMGameData *s_exposed = nullptr;
+
+	if (!s_looked)
+	{
+		s_looked = true;
+
+		GameBinaryInfo server;
+		if (g_GameConfigs.TryGetGameBinaryInfo("server", &server) && server.m_pAddr)
+		{
+			typedef void *(*CreateInterfaceFn)(const char *name, int *returnCode);
+			s_exposed = static_cast<IKTBMGameData *>(
+				reinterpret_cast<CreateInterfaceFn>(server.m_pAddr)(KTBM_GAMEDATA_INTERFACE_VERSION, nullptr));
+		}
+	}
+
+	return s_exposed;
+}
+
+/* For "Offsets": a virtual function's index in its vtable, or a member's offset in its class */
+static bool FindExposedOffset(const char *name, int *offset)
+{
+	IKTBMGameData *exposed = GetKTBMGameData();
+	if (!exposed)
+		return false;
+
+	if ((*offset = exposed->GetVTableOffset(name)) >= 0)
+		return true;
+
+	return (*offset = exposed->GetMemberOffset(name)) >= 0;
+}
+
+/* For "Signatures": a function, or a global variable */
+static void *FindExposedAddress(const char *name)
+{
+	IKTBMGameData *exposed = GetKTBMGameData();
+	if (!exposed)
+		return nullptr;
+
+	void *addr = exposed->GetFunctionAddress(name);
+	return addr ? addr : exposed->GetAddress(name);
+}
+
+/* The "exposed" key of the offset that is being read */
+static std::string s_TempExposedOffset;
 
 #define PSTATE_NONE						0
 #define PSTATE_GAMES					1
@@ -99,9 +158,11 @@ struct TempSigInfo
 	{
 		library[0] = '\0';
 		sig[0] = '\0';
+		exposed[0] = '\0';
 	}
 	char sig[1024];
 	char library[64];
+	char exposed[256];
 } s_TempSig;
 
 static bool DoesGameMatch(const char *value)
@@ -395,6 +456,8 @@ SMCResult CGameConfig::ReadSMC_KeyValue(const SMCStates *states, const char *key
 			m_Class = value;
 		} else if (strcmp(key, "prop") == 0) {
 			m_Prop = value;
+		} else if (strcmp(key, "exposed") == 0) {
+			s_TempExposedOffset = value;
 		} else if (IsPlatformCompatible(key, &matched_platform)) {
 			m_Offsets.replace(m_offset.c_str(), static_cast<int>(strtol(value, NULL, 0)));
 		}
@@ -439,6 +502,8 @@ SMCResult CGameConfig::ReadSMC_KeyValue(const SMCStates *states, const char *key
 			strncopy(s_TempSig.sig, value, sizeof(s_TempSig.sig));
 		} else if (strcmp(key, "library") == 0) {
 			strncopy(s_TempSig.library, value, sizeof(s_TempSig.library));
+		} else if (strcmp(key, "exposed") == 0) {
+			strncopy(s_TempSig.exposed, value, sizeof(s_TempSig.exposed));
 		}
 	} else if (m_ParseState == PSTATE_GAMEDEFS_CRC_BINARY) {
 		if (DoesPlatformMatch(key)
@@ -550,6 +615,14 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 					}
 				}
 			}
+			if (!s_TempExposedOffset.empty())
+			{
+				/* Whatever the game says goes, wherever in the section the key was */
+				int val;
+				if (FindExposedOffset(s_TempExposedOffset.c_str(), &val))
+					m_Offsets.replace(m_offset.c_str(), val);
+				s_TempExposedOffset.clear();
+			}
 			m_ParseState = PSTATE_GAMEDEFS_OFFSETS;
 			break;
 		}
@@ -591,7 +664,13 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 			}
 
 			void *final_addr = NULL;
-			if (addrInBase == NULL)
+			if (s_TempSig.exposed[0] && strcmp(s_TempSig.library, "server") == 0
+				&& (final_addr = FindExposedAddress(s_TempSig.exposed)) != NULL)
+			{
+				/* The game says where it is: no need to look for it */
+				m_Sigs.replace(m_offset.c_str(), final_addr);
+			}
+			else if (addrInBase == NULL)
 			{
 				logger->LogError("[SM] Unrecognized library \"%s\" (gameconf \"%s\")", 
 					s_TempSig.library, 

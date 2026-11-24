@@ -41,6 +41,7 @@
 #include "gameplayrules.h"
 #include "teleporter.h"
 #include "attributes.h"
+#include "exposed.h"
 #include "CDetour/detours.h"
 #include "ISDKHooks.h"
 #include "ISDKTools.h"
@@ -113,12 +114,18 @@ bool TF2Tools::SDK_OnLoad(char *error, size_t maxlength, bool late)
 
 	sharesys->AddNatives(myself, g_TFNatives);
 	sharesys->AddNatives(myself, g_TFAttributeNatives);
+	sharesys->AddNatives(myself, g_TFExposedNatives);
 	sharesys->RegisterLibrary(myself, "tf2");
 
 	if (!HasAttributeInterface())
 	{
 		// Not a reason to fail the load: everything else works without it
 		g_pSM->LogMessage(myself, "This build of the game has no attribute interface. The TF2R attribute natives will throw an error when called.");
+	}
+
+	if (!HasExposedInterface())
+	{
+		g_pSM->LogMessage(myself, "This build of the game exposes no functions by name. The TF2R_GetFunctionAddress family of natives will throw an error when called.");
 	}
 
 	plsys->AddPluginsListener(this);
@@ -170,6 +177,9 @@ bool TF2Tools::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlen, bool
 	// The game's own interface for item attributes, found by its name. SDK_OnLoad()
 	// says so if this build of the game doesn't have it.
 	FindAttributeInterface(ismm);
+
+	// The same for the list of functions the game exposes by name
+	FindExposedInterface(ismm);
 
 	return true;
 }

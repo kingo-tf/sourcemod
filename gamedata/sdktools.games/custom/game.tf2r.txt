@@ -7,89 +7,72 @@
 		{
 			"SetOwnerEntity"
 			{
+				"exposed"	"CBaseEntity::SetOwnerEntity"
 
-				"windows64"	"18"
-				"linux64"	"19"
 			}
 			"GiveNamedItem"
 			{
-				"windows64"	"418"
-				"linux64"	"420"
+				"exposed"	"CBasePlayer::GiveNamedItem"
 			}
 			"RemovePlayerItem"
 			{
-				"windows64"	"286"
-				"linux64"	"288"
+				"exposed"	"CBaseCombatCharacter::RemovePlayerItem"
 			}
 			"Weapon_GetSlot"
 			{
-				"windows64"	"284"
-				"linux64"	"286"
+				"exposed"	"CBaseCombatCharacter::Weapon_GetSlot"
 			}
 			"Ignite"
 			{
-				"windows64"	"225"
-				"linux64"	"226"
+				"exposed"	"CBaseAnimating::Ignite"
 			}
 			"Extinguish"
 			{
-				"windows64"	"229"
-				"linux64"	"230"
+				"exposed"	"CBaseAnimating::Extinguish"
 			}
 			"Teleport"
 			{
-				"windows64"	"117"
-				"linux64"	"118"
+				"exposed"	"CBaseEntity::Teleport"
 			}
 			"CommitSuicide"
 			{
-				"windows64"	"459"
-				"linux64"	"460"
+				"exposed"	"CBasePlayer::CommitSuicide(bool,bool)"
 			}
 			"GetVelocity"
 			{
-				"windows64"	"150"
-				"linux64"	"151"
+				"exposed"	"CBaseEntity::GetVelocity"
 			}
 			"EyeAngles"
 			{
-				"windows64"	"141"
-				"linux64"	"142"
+				"exposed"	"CBaseEntity::EyeAngles"
 			}
 			"SetEntityModel"
 			{
-				"windows64"	"26"
-				"linux64"	"27"
+				"exposed"	"CBaseEntity::SetModel"
 			}
 			"AcceptInput"
 			{
-				"windows64"	"38"
-				"linux64"	"39"
+				"exposed"	"CBaseEntity::AcceptInput"
 			}
 			"WeaponEquip"
 			{
-				"windows64"	"277"
-				"linux64"	"279"
+				"exposed"	"CBaseCombatCharacter::Weapon_Equip"
 			}
 			"Activate"
 			{
-				"windows64"	"35"
-				"linux64"	"36"
+				"exposed"	"CBaseEntity::Activate"
 			}
 			"PlayerRunCmd"
 			{
-				"windows64"	"436"
-				"linux64"	"438"
+				"exposed"	"CBasePlayer::PlayerRunCommand"
 			}
 			"GiveAmmo"
 			{
-				"windows64"	"268"
-				"linux64"	"270"
+				"exposed"	"CBaseCombatCharacter::GiveAmmo(int,int,bool)"
 			}
 			"GetAttachment"
 			{
-				"windows64"	"221"
-				"linux64"	"222"
+				"exposed"	"CBaseAnimating::GetAttachment(int,matrix3x4_t&)"
 			}
 		}
 		
@@ -106,11 +89,10 @@
 		{
 			"FireOutput"
 			{
+				"exposed"	"CBaseEntityOutput::FireOutput"
 				/* CBaseEntityOutput::FireOutput */
 				/* String: "(%0.2f) output: (%s,%s) -> (%s,%s,%.1f)" */
 				"library"	"server"
-				"windows64"	"\x4C\x8B\xDC\x41\x54\x41\x55"
-				"linux64"	"@_ZN17CBaseEntityOutput10FireOutputE9variant_tP11CBaseEntityS2_f"
 			}
 		}
 	}
@@ -121,11 +103,10 @@
 		{
 			"LookupAttachment"
 			{
+				"exposed"	"CBaseAnimating::LookupAttachment"
 				/* CBaseAnimating::LookupAttachment */
 				/* String: "vehicle_driver_eyes", middle length top function, with 4 calls, pick the first one. */
 				"library"	"server"
-				"windows64"	"\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x20\x80\xB9\x65\x04\x00\x00\x00\x48\x8B\xFA\x48\x8B\xD9\x75\x2A\x48\x83\xB9\xC0\x05\x00\x00\x00\x75\x2A\xE8\x2A\x2A\x2A\x2A\x48\x85\xC0\x74\x2A\x48\x8B\xCB\xE8\x2A\x2A\x2A\x2A\x48\x8B\x8B\xC0\x05\x00\x00\x48\x85\xC9\x74\x2A\x48\x83\x39\x00\x74\x2A\x48\x8B\xD7\xE8\x2A\x2A\x2A\x2A"
-				"linux64"	"@_ZN14CBaseAnimating16LookupAttachmentEPKc"
 			}
 		}
 	}
