@@ -78,11 +78,13 @@ static IKTBMGameData *GetKTBMGameData()
 
 	if (!s_looked)
 	{
-		s_looked = true;
-
 		GameBinaryInfo server;
 		if (g_GameConfigs.TryGetGameBinaryInfo("server", &server) && server.m_pAddr)
 		{
+			/* Only an answer from the game's library is final. Until that library is found,
+			 * there was nobody to ask, and the next gamedata file asks again. */
+			s_looked = true;
+
 			typedef void *(*CreateInterfaceFn)(const char *name, int *returnCode);
 			s_exposed = static_cast<IKTBMGameData *>(
 				reinterpret_cast<CreateInterfaceFn>(server.m_pAddr)(KTBM_GAMEDATA_INTERFACE_VERSION, nullptr));
@@ -90,6 +92,24 @@ static IKTBMGameData *GetKTBMGameData()
 	}
 
 	return s_exposed;
+}
+
+/**
+ * Says so in the error log when a gamedata entry names something the game doesn't expose and
+ * has no other value to go by. Without this, the entry is simply not there, and what needed it
+ * fails later with nothing pointing at the name: a typing mistake in it, or a game that is
+ * older than the gamedata.
+ *
+ * Nothing is logged on a game that exposes nothing at all: there every such entry is left to
+ * its platform values, as any other gamedata entry is.
+ */
+static void LogNotExposed(const char *what, const char *key, const char *name, const char *file)
+{
+	if (!GetKTBMGameData())
+		return;
+
+	logger->LogError("[SM] The game does not expose \"%s\", and %s \"%s\" has no other value (gameconf \"%s\")",
+		name, what, key, file);
 }
 
 /* For "Offsets": a virtual function's index in its vtable, or a member's offset in its class */
@@ -118,6 +138,9 @@ static void *FindExposedAddress(const char *name)
 
 /* The "exposed" key of the offset that is being read */
 static std::string s_TempExposedOffset;
+
+/* The exposed name of the address entry that is being read: where the game says it starts from */
+static std::string s_TempExposedAddress;
 
 #define PSTATE_NONE						0
 #define PSTATE_GAMES					1
@@ -345,6 +368,9 @@ SMCResult CGameConfig::ReadSMC_NewSection(const SMCStates *states, const char *n
 		{
 			m_Prop.clear();
 			m_Class.clear();
+			/* Nothing of an entry before this one, in whichever file: a file that could not
+			 * be read to its end leaves its last entry open */
+			s_TempExposedOffset.clear();
 			m_offset = name;
 			m_ParseState = PSTATE_GAMEDEFS_OFFSETS_OFFSET;
 			matched_platform = false;
@@ -397,6 +423,7 @@ SMCResult CGameConfig::ReadSMC_NewSection(const SMCStates *states, const char *n
 		{
 			m_Address.clear();
 			m_AddressSignature.clear();
+			s_TempExposedAddress.clear();
 			m_AddressReadCount = 0;
 			m_AddressLastIsOffset = false;
 
@@ -539,6 +566,8 @@ SMCResult CGameConfig::ReadSMC_KeyValue(const SMCStates *states, const char *key
 			}
 		} else if (strcmp(key, "signature") == 0) {
 			m_AddressSignature = value;
+		} else if (strcmp(key, "exposed") == 0) {
+			s_TempExposedAddress = value;
 		}
 	} else if (m_ParseState == PSTATE_GAMEDEFS_CUSTOM) {
 		return m_CustomHandler->ReadSMC_KeyValue(states, key, value);
@@ -621,6 +650,8 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 				int val;
 				if (FindExposedOffset(s_TempExposedOffset.c_str(), &val))
 					m_Offsets.replace(m_offset.c_str(), val);
+				else if (!m_Offsets.retrieve(m_offset.c_str()))
+					LogNotExposed("offset", m_offset.c_str(), s_TempExposedOffset.c_str(), m_CurFile);
 				s_TempExposedOffset.clear();
 			}
 			m_ParseState = PSTATE_GAMEDEFS_OFFSETS;
@@ -733,6 +764,13 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 
 				m_Sigs.replace(m_offset.c_str(), final_addr);
 			}
+			else if (s_TempSig.exposed[0])
+			{
+				/* Nothing from the game, and no signature for this platform either */
+				void *known = NULL;
+				if (!m_Sigs.retrieve(m_offset.c_str(), &known) || !known)
+					LogNotExposed("signature", m_offset.c_str(), s_TempSig.exposed, m_CurFile);
+			}
 
 			m_ParseState = PSTATE_GAMEDEFS_SIGNATURES;
 
@@ -746,6 +784,25 @@ SMCResult CGameConfig::ReadSMC_LeavingSection(const SMCStates *states)
 	case PSTATE_GAMEDEFS_ADDRESSES_ADDRESS:
 		{
 			m_ParseState = PSTATE_GAMEDEFS_ADDRESSES;
+
+			if (!s_TempExposedAddress.empty())
+			{
+				/* An address the game gives by name takes the place of the signature to start
+				 * from, under a name no signature of a file has. The entry's reads and offsets
+				 * apply to it as they would to the signature. So a "signature" next to it is
+				 * what is left when the game doesn't know the name, but only of use if it needs
+				 * the same reads and offsets: one that needs others can't be in the same entry. */
+				if (void *exposed = FindExposedAddress(s_TempExposedAddress.c_str()))
+				{
+					m_AddressSignature = "exposed:" + s_TempExposedAddress;
+					m_Sigs.replace(m_AddressSignature.c_str(), exposed);
+				}
+				else if (m_AddressSignature.empty())
+				{
+					LogNotExposed("address", m_Address.c_str(), s_TempExposedAddress.c_str(), m_CurFile);
+				}
+				s_TempExposedAddress.clear();
+			}
 
 			if (!m_Address.empty() && !m_AddressSignature.empty())
 			{

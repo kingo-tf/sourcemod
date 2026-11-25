@@ -65,6 +65,24 @@
  *
  *     "Signatures" { "Regenerate"   { "library" "server"  "exposed" "CTFPlayer::Regenerate" } }
  *     "Offsets"    { "ForceRespawn" { "exposed" "CBasePlayer::ForceRespawn"  "windows64" "343"  "linux64" "345" } }
+ *
+ * An address entry can start from an exposed name as well, in place of a
+ * signature; "read" and "offset" steps apply to it as usual. For a member
+ * variable's name the address is that of a 32-bit number holding the member's
+ * offset, which is what a plugin wants that reads an offset from memory:
+ *
+ *     "Addresses"  { "offsetof(CTFPlayer::m_flRespawnTimeOverride)" { "exposed" "CTFPlayer::m_flRespawnTimeOverride" } }
+ *
+ * The steps of an address entry apply to whichever it starts from. A
+ * "signature" next to "exposed" is therefore only of use if it needs the same
+ * steps; one that needs others can't share the entry.
+ *
+ * An entry that names something the game doesn't expose, and that has no
+ * other value to go by, is reported in SourceMod's error log.
+ *
+ * The address of a function is safe to detour: the game only gives one for a
+ * function that every call goes through. It gives none for a function its
+ * code exposes without that guarantee.
  */
 
 /**
@@ -88,6 +106,7 @@ native bool TF2R_ExposedAvailable();
 
 /**
  * Returns where a function the game exposes starts, to call it or to detour it.
+ * A detour at this address sees every call of the function.
  *
  * A virtual function has no address here: it has an implementation per class,
  * so it is hooked or called through TF2R_GetVTableOffset.
@@ -115,6 +134,10 @@ native int TF2R_GetVTableOffset(const char[] name);
 /**
  * Returns the address of a global variable or object the game exposes. For a
  * global pointer this is where the pointer is kept, not what it points at.
+ *
+ * Given the name of a member variable, this returns the address of a 32-bit
+ * number that holds the member's offset. TF2R_GetMemberOffset gives the offset
+ * itself.
  *
  * @param name          Name of the variable. Case sensitive.
  * @return              Address of the variable, or Address_Null if the game

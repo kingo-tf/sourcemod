@@ -12,6 +12,10 @@
 			{
 				"exposed"	"CBaseEntity::GetDataDescMap"
 			}
+			"CSendPropExtra_UtlVector::m_Offset"
+			{
+				"exposed"	"CSendPropExtra_UtlVector::m_Offset"
+			}
 		}
 		"Signatures"
 		{
