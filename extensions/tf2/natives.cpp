@@ -97,11 +97,14 @@ cell_t TF2_Burn(IPluginContext *pContext, const cell_t *params)
 {
 	static ICallWrapper *pWrapper = NULL;
 
-	// CTFPlayerShared::Burn(CTFPlayer*, CTFWeaponBase*, float=-1.0)
+	// CTFPlayerShared::Burn(CTFPlayer*, CTFWeaponBase*, float=-1.0, bool bFixed=false)
+	// TF2 Rebalanced has the fourth parameter, which Team Fortress 2 has not: true sets the time
+	// left to burn to the duration, false adds the duration to it. Left out, the game reads
+	// whatever is in its place.
 	if (!pWrapper)
 	{
-		REGISTER_NATIVE_ADDR("Burn", 
-			PassInfo pass[3]; \
+		REGISTER_NATIVE_ADDR("Burn",
+			PassInfo pass[4]; \
 			pass[0].flags = PASSFLAG_BYVAL; \
 			pass[0].size = sizeof(CBaseEntity *); \
 			pass[0].type = PassType_Basic; \
@@ -111,7 +114,10 @@ cell_t TF2_Burn(IPluginContext *pContext, const cell_t *params)
 			pass[2].flags = PASSFLAG_BYVAL; \
 			pass[2].size = sizeof(float); \
 			pass[2].type = PassType_Float; \
-			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 3))
+			pass[3].flags = PASSFLAG_BYVAL; \
+			pass[3].size = sizeof(bool); \
+			pass[3].type = PassType_Basic; \
+			pWrapper = g_pBinTools->CreateCall(addr, CallConv_ThisCall, NULL, pass, 4))
 	}
 
 	CBaseEntity *pEntity;
@@ -134,9 +140,10 @@ cell_t TF2_Burn(IPluginContext *pContext, const cell_t *params)
 	}
 
 	void *obj = (void *)((uint8_t *)pEntity + playerSharedOffset->actual_offset);
-	ArgBuffer<void*, CBaseEntity*, CBaseEntity*, 
-										float> //duration
-										vstk(obj, pTarget, nullptr, fDuration);
+	ArgBuffer<void*, CBaseEntity*, CBaseEntity*,
+										float, //duration
+										bool> //fixed
+										vstk(obj, pTarget, nullptr, fDuration, false);
 
 	pWrapper->Execute(vstk, nullptr);
 	return 1;
