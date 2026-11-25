@@ -7,79 +7,56 @@
 			"Burn"
 			{
 				"exposed"	"CTFPlayerShared::Burn"
-				/* CTFPlayerShared::Burn (No clone.)*/
-				/* String : -> "afterburn_immunity"*/
 				"library"	"server"
 			}
 			"RemoveDisguise"
 			{
 				"exposed"	"CTFPlayerShared::RemoveDisguise"
-				/* CTFPlayerShared::RemoveDisguise*/
-				/* String : "reveal_disguised_victim_on_hit", follow the xref, RemoveDisguise is the subroutine that's called if the return value of CALL_ATTRIB_HOOK_INT( iRevealDisguisedSpyOnHit, reveal_disguised_victim_on_hit ); was true */
-				
 				"library"	"server"
 			}
 			"Disguise"
 			{
 				"exposed"	"CTFPlayerShared::Disguise"
-				/* CTFPlayerShared::Disguise */
-				/* String : "mod_disguise_consumes_cloak" */
 				"library"	"server"
 			}
 			"Regenerate"
 			{
 				"exposed"	"CTFPlayer::Regenerate"
-				/* CTFPlayer::Regenerate */
-				/* String : "item_meter_resupply_denied" -> subroutine with string "player_regenerate"*/
 				"library"	"server"
 			}
 			"AddCondition"
 			{
 				"exposed"	"CTFPlayerShared::AddCond"
-				/* CTFPlayerShared::AddCond */
-				/* String: "#TF_HALLOWEEN_MERASMUS_YOU_ARE_BOMB" -> walk back the graph, right before there should two subroutines call (CTFPlayerShared::AddCond) with 0x20 & 0x35 as parameter */
 				"library"	"server"
 			}
 			"RemoveCondition"
 			{
 				"exposed"	"CTFPlayerShared::RemoveCond"
-				/* CTFPlayerShared::RemoveCond */
-				/* String: "damage_prevented" */
 				"library"	"server"
 			}
 			"SetPowerplayEnabled"
 			{
 				"exposed"	"CTFPlayer::SetPowerPlayEnabled"
-				/* CTFPlayer::SetPowerplayEnabled */
-				/* String: "scenes/player/pyro/low/1485.vcd" -> Main fuction -> That main function again.*/
 				"library"	"server"
 			}
 			"SetInWaitingForPlayers"
 			{
 				"exposed"	"CTeamplayRoundBasedRules::SetInWaitingForPlayers"
-				/* CTeamplayRoundBasedRules::SetInWaitingForPlayers */
-				/* Locate "mp_waitingforplayers_time" convar. It's used in the only subroutine with no strings */
 				"library"	"server"
 			}
 			"StunPlayer"
 			{
 				"exposed"	"CTFPlayerShared::StunPlayer"
-				/* CTFPlayerShared::StunPlayer */
-				/* String: "player_stunned" */
 				"library"	"server"
 			}
 			"MakeBleed"
 			{
 				"exposed"	"CTFPlayerShared::MakeBleed"
-				/* CTFPlayerShared::MakeBleed */
-				/* String: "InputBleedPlayer"/"BleedPlayer" follow to the input subroutine (CTFPlayer::InputBleedPlayer), MakeBleed is the last called subroutine.*/
 				"library" 	"server"
 			}
 			"IsPlayerInDuel"
 			{
 				"exposed"	"DuelMiniGame_IsInDuel"
-				/* DuelMiniGame_IsInDuel */
-				/* String: "CTFPlayer::ForceChangeTeam( %d ) - invalid team index.\n", follow the xref, go back to the top of the subroutine, DuelMiniGame_IsInDuel is the subroutine that is called with 3 arguments and a constant value of 1.*/
 				"library"	"server"
 			}
 			"CanPlayerBeTeleported"
